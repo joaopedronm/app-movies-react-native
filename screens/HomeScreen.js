@@ -4,11 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { Bars3CenterLeftIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
 import { styles } from '../theme/index'
+import { useNavigation } from '@react-navigation/native'
 
 // Components
 import TrendingMovies from '../components/TrendingMovies'
 import MovieList from '../components/MovieList'
-import { useNavigation } from '@react-navigation/native'
+import Loading from '../components/Loading'
 
 const ios = Platform.OS === 'ios'
 
@@ -17,6 +18,7 @@ const HomeScreen = () => {
   const [trending, setTrending] = useState([1,2,3])
   const [upcoming, setUpcoming] = useState([1,2,3])
   const [topRated, setTopRated] = useState([1,2,3])
+  const [loading, setLoading] = useState(false)
   const navigation = useNavigation()
 
   return (
@@ -34,21 +36,27 @@ const HomeScreen = () => {
         </View>
       </SafeAreaView>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 10}}
-      >
+      {
+        loading? (
+          <Loading />
+        ):(
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{paddingBottom: 10}}
+        >
 
-        {/* Trending movies carousel */}
-        <TrendingMovies data={trending} />
+          {/* Trending movies carousel */}
+          <TrendingMovies data={trending} />
 
-        {/* upcoming movies row */}
-        <MovieList title="Upcoming" data={upcoming} />
+          {/* upcoming movies row */}
+          <MovieList title="Upcoming" data={upcoming} />
 
-        {/* top rated movies row */}
-        <MovieList title="Top Rated" data={topRated} />
+          {/* top rated movies row */}
+          <MovieList title="Top Rated" data={topRated} />
 
-      </ScrollView>
+        </ScrollView>
+        )
+      }
 
     </View>
   )
