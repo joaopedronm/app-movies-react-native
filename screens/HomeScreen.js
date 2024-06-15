@@ -10,25 +10,41 @@ import { useNavigation } from '@react-navigation/native'
 import TrendingMovies from '../components/TrendingMovies'
 import MovieList from '../components/MovieList'
 import Loading from '../components/Loading'
-import { fetchTrendingMovies } from '../api/moviedb'
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from '../api/moviedb'
 
 const ios = Platform.OS === 'ios'
 
 const HomeScreen = () => {
 
-  const [trending, setTrending] = useState([1,2,3])
-  const [upcoming, setUpcoming] = useState([1,2,3])
-  const [topRated, setTopRated] = useState([1,2,3])
-  const [loading, setLoading] = useState(false)
+  const [trending, setTrending] = useState([])
+  const [upcoming, setUpcoming] = useState([])
+  const [topRated, setTopRated] = useState([])
+  const [loading, setLoading] = useState(true)
   const navigation = useNavigation()
 
   useEffect(() => {
     getTrendingMovies()
+    getUpcomingMovies()
+    getTopRatedMovies()
   }, [])
 
   const getTrendingMovies = async () => {
     const data = await fetchTrendingMovies()
-    console.log('got trending movies: ', data)
+    // console.log('got trending movies: ', data)
+    if(data && data.results) setTrending(data.results)
+    setLoading(false)
+  }
+
+  const getUpcomingMovies = async () => {
+    const data = await fetchUpcomingMovies()
+    // console.log('got upcoming movies: ', data)
+    if(data && data.results) setUpcoming(data.results)
+  }
+
+  const getTopRatedMovies = async () => {
+    const data = await fetchTopRatedMovies()
+    // console.log('got top rated movies: ', data)
+    if(data && data.results) setTopRated(data.results)
   }
 
   return (
@@ -56,7 +72,7 @@ const HomeScreen = () => {
         >
 
           {/* Trending movies carousel */}
-          <TrendingMovies data={trending} />
+          { trending.length > 0 && <TrendingMovies data={trending} />}
 
           {/* upcoming movies row */}
           <MovieList title="Upcoming" data={upcoming} />

@@ -12,7 +12,7 @@ export default function SearchScreen() {
 
   const navigation = useNavigation()
   const [results, setResults] = useState([1,2,3])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   let movieName = 'Ant-Man an the Wasp: Quantumania'
 
   return (
