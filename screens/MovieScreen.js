@@ -10,6 +10,7 @@ import { styles, theme } from '../theme'
 import Cast from '../components/Cast'
 import MovieList from '../components/MovieList'
 import Loading from '../components/Loading'
+import { fetchMovieDetails } from '../api/moviedb'
 
 var{width, height} = Dimensions.get('window')
 const ios = Platform.OS == 'ios'
@@ -28,7 +29,16 @@ export default function MovieScreen() {
 
   useEffect(() => {
     // call the movie details api
+    setLoading(true)
+    getMovieDetails(item.id)
+
   }, [item])
+
+  const getMovieDetails = async (id) => {
+    const data = await fetchMovieDetails(id)
+    console.log('get movie details', data)
+    setLoading(false)
+  }
 
   return (
     <ScrollView
@@ -107,7 +117,7 @@ export default function MovieScreen() {
       <Cast navigation={navigation} cast={cast} />
 
       {/* similar movies */}
-      <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />
+      {/* <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} /> */}
       
 
     </ScrollView>
