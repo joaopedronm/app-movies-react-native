@@ -10,7 +10,7 @@ import { styles, theme } from '../theme'
 import Cast from '../components/Cast'
 import MovieList from '../components/MovieList'
 import Loading from '../components/Loading'
-import { fetchMovieDetails } from '../api/moviedb'
+import { fetchMovieCredits, fetchMovieDetails, fetchSimilarMovies, image500 } from '../api/moviedb'
 
 var{width, height} = Dimensions.get('window')
 const ios = Platform.OS == 'ios'
@@ -20,9 +20,10 @@ export default function MovieScreen() {
 
   const {params: item} = useRoute()
   const [isFavourite, toggleFavourite] = useState(false)
-  const [cast, setCast] = useState([1,2,3,4,5])
-  const [similarMovies, setSimilarMovies] = useState([1,2,3,4,5])
+  const [cast, setCast] = useState([])
+  const [similarMovies, setSimilarMovies] = useState([])
   const [loading, setLoading] = useState(false)
+  const [movie, setMovie] = useState({})
 
   const navigation = useNavigation()
   let movieName = 'Ant-Man an the Wasp: Quantumania'
@@ -31,13 +32,28 @@ export default function MovieScreen() {
     // call the movie details api
     setLoading(true)
     getMovieDetails(item.id)
+    getMovieCredits(item.id)
+    getSimilarMovies(item.id)
 
   }, [item])
 
   const getMovieDetails = async (id) => {
     const data = await fetchMovieDetails(id)
-    console.log('get movie details', data)
+    // console.log('get movie details', data)
+    if(data) setMovie(data)
     setLoading(false)
+  }
+
+  const getMovieCredits = async id => {
+    const data = await fetchMovieCredits(id)
+    // console.log('got credits: ', data)
+    if(data && data.cast) setCast(data.cast)
+  }
+
+  const getSimilarMovies = async id => {
+    const data = await fetchSimilarMovies(id)
+    // console.log('got similar movies: ', data)
+    if(data && data.results) setSimilarMovies(data.results)
   }
 
   return (
@@ -65,7 +81,8 @@ export default function MovieScreen() {
           ) : (
             <View>
               <Image
-                source={require('../assets/images/moviePoster2.jpg')}
+                // source={require('../assets/images/moviePoster2.jpg')}
+                source={{uri: image500(movie?.poster_path)}}
                 style={{width, height: height*0.55}}
               />
               <LinearGradient
@@ -86,30 +103,36 @@ export default function MovieScreen() {
 
         {/* title */}
         <Text className="text-white text-center text-3xl font-bold tracking-wider">
-          {movieName}
+          {movie?.title}
         </Text>
 
         {/* status, release, runtime */}
         <Text className="text-neutral-400 font-semibold text-center">
-          Released ∙ 2020 ∙ 160 min
+          {movie?.status} ∙ {movie?.release_date?.split('-')[0]} ∙ {movie?.runtime} min
         </Text>
 
         {/* genres */}
         <View className="flex-row justify-center mx-4 space-x-2 space">
-          <Text className="text-neutral-400 font-semibold text-base text-center">
-            Action &#x2022; 
-          </Text>
-          <Text className="text-neutral-400 font-semibold text-base text-center">
+          {movie?.genres?.map((genre, index) => {
+            let showDot = index+1 != movie.genres.length
+            return (
+              <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
+                {genre?.name} {showDot ? '•' : null}  
+              </Text>
+            )
+          })}
+          
+          {/* <Text className="text-neutral-400 font-semibold text-base text-center">
             Thrill &#x2022;  
           </Text>
           <Text className="text-neutral-400 font-semibold text-base text-center">
             Comedy 
-          </Text>
+          </Text> */}
         </View>
 
         {/* description */}
         <Text className="text-neutral-400 mx-4 tracking-wide">
-          Scott Lang and Hope Van Dyne are dragged into the Quantum Realm, along with Hope's parents and Scott's daughter Cassie. Together they must find a way to escape, but what secrets is Hope's mother hiding? And who is the mysterious Kang?
+          {movie?.overview}
         </Text>
       </View>
 
@@ -117,7 +140,7 @@ export default function MovieScreen() {
       <Cast navigation={navigation} cast={cast} />
 
       {/* similar movies */}
-      {/* <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} /> */}
+      <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />
       
 
     </ScrollView>
