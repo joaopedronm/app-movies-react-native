@@ -23,3 +23,5 @@ const AppNavigation = () => {
 }
 
 export default AppNavigation
+
+// connect do dell
